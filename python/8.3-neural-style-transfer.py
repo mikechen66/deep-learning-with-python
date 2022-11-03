@@ -23,6 +23,7 @@ import tensorflow as tf
 tf.compat.v1.disable_eager_execution()
 from scipy.optimize import fmin_l_bfgs_b
 # -from scipy.misc import imsave
+import imageio
 from imageio import imsave
 import time
 from matplotlib import pyplot as plt
@@ -188,7 +189,7 @@ for i in range(iterations):
     img = x.copy().reshape((img_height, img_width, 3))
     img = deprocess_image(img)
     fname = result_prefix + '_at_iteration_%d.png' % i
-    imsave(fname, img)
+    imageio.imsave(fname, img)
     end_time = time.time()
     print('Image saved as', fname)
     print('Iteration %d completed in %ds' % (i, end_time - start_time))

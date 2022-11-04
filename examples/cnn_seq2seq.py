@@ -199,13 +199,8 @@ predict = np.zeros(
 
 for i in range(max_decoder_seq_length - 1):
     """
-Traceback (most recent call last):
-  File "cnn_seq2seq.py", line 201, in <module>
-    predict = model.predict([in_encoder, in_decoder])
-ValueError: Data cardinality is ambiguous:
-  x sizes: 100, 10000
-Please provide data which shares the same first dimension.
-
+    Data cardinality is ambiguous: x sizes: 100, 10000 Please provide 
+    data which shares the same first dimension.
     """
     predict = model.predict([in_encoder, in_decoder])
     predict = predict.argmax(axis=-1)

@@ -1,4 +1,6 @@
-'''This script loads pre-trained word embeddings (GloVe embeddings)
+"""
+
+This script loads pre-trained word embeddings (GloVe embeddings)
 into a frozen Keras Embedding layer, and uses it to
 train a text classification model on the 20 Newsgroup dataset
 (classification of newsgroup messages into 20 different categories).
@@ -9,7 +11,8 @@ http://nlp.stanford.edu/data/glove.6B.zip
 
 20 Newsgroup data can be found at:
 http://www.cs.cmu.edu/afs/cs.cmu.edu/project/theo-20/www/data/news20.html
-'''
+
+"""
 
 from __future__ import print_function
 
@@ -23,11 +26,21 @@ from keras.layers import Dense, Input, GlobalMaxPooling1D
 from keras.layers import Conv1D, MaxPooling1D, Embedding
 from keras.models import Model
 from keras.initializers import Constant
+import tensorflow as tf
+# -tf.compat.v1.disable_eager_execution()
+from numba import cuda
+
+
+# Set up the GPU to avoid the runtime error: Could not create cuDNN handle...
+gpus = tf.config.experimental.list_physical_devices('GPU')
+for gpu in gpus:
+    tf.config.experimental.set_memory_growth(gpu, True)
+
 
 
 BASE_DIR = ''
-GLOVE_DIR = os.path.join(BASE_DIR, '/home/nvidia/.keras/datasets/glove.6B')
-TEXT_DATA_DIR = os.path.join(BASE_DIR, '/home/nvidia/.keras/datasets/20_newsgroup')
+GLOVE_DIR = os.path.join(BASE_DIR, '/home/mic/datasets/glove.6B')
+TEXT_DATA_DIR = os.path.join(BASE_DIR, '/home/mic/datasets/20_newsgroup')
 MAX_SEQUENCE_LENGTH = 1000
 MAX_NUM_WORDS = 20000
 EMBEDDING_DIM = 100
@@ -39,7 +52,7 @@ VALIDATION_SPLIT = 0.2
 print('Indexing word vectors.')
 
 embeddings_index = {}
-with open(os.path.join(GLOVE_DIR, '/home/nvidia/.keras/datasets/glove.6B/glove.6B.100d.txt')) as f:
+with open(os.path.join(GLOVE_DIR, '/home/mic/datasets/glove.6B/glove.6B.100d.txt')) as f:
     for line in f:
         word, coefs = line.split(maxsplit=1)
         coefs = np.fromstring(coefs, 'f', sep=' ')
@@ -142,3 +155,8 @@ model.fit(x_train, y_train,
           batch_size=128,
           epochs=10,
           validation_data=(x_val, y_val))
+
+
+# Release the GPU memory
+cuda.select_device(0)
+cuda.close()

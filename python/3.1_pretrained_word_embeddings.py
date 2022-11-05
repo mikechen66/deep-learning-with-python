@@ -1,7 +1,27 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Text Similarity using Word Embeddings
+
+"""
+Text Similarity using Word Embeddings
+
+1. Model: 
+
+model = gensim.models.KeyedVectors.load_word2vec_format(model_path, binary=True)
+
+2. Functions: 
+Please note that the two functions are quite different. The former function can automatically 
+delete the cosine distance of the item of the tuple. However,  model.similar_by_vector() will
+count the cosine distance of the item. 
+
+1. cosine distance function: most_similar()
+
+model.most_similar(positive=['king','woman'], negative=['man'])
+
+2.vector function: similar_by_vector(q)
+
+q = model['king'] - model['man'] + model['woman']
+model.similar_by_vector(q)
 
 # Input the path of program 
 # $ cd ~/Documents/keras_examples
@@ -11,6 +31,7 @@
 
 # In this notebook we're going to play around with pre build word embeddings and do some fun 
 # calculations:
+"""
 
 
 import os
@@ -64,7 +85,7 @@ def A_is_to_B_as_C_is_to(a, b, c, topn=1):
         return [x[0] for x in res]
     return None
 
-# For jupyter notebook or Terminal
+# For jupyter notebook or Terminal Console
 # -A_is_to_B_as_C_is_to('man', 'woman', 'king')
 
 # We can use this equation to acurately predict the capitals of countries by looking at what 
@@ -75,9 +96,9 @@ for country in 'Italy', 'France', 'India', 'China':
           (A_is_to_B_as_C_is_to('Germany', 'Berlin', country), country))
           # -(A_is_to_B_as_C_is_to('Germany', 'Berlin', positional placeholder), country))
 
-# Or we can do the same for important products for given companies. Here we seed the products 
-# equation with two products, the iPhone for Apple and Starbucks_coffee for Starbucks. Note 
-# that numbers are replaced by # in the embedding model:
+# Items of each list are necessary to be alternately permutated. If users write the combination 
+# of ['Starbucks', 'Starbucks_coffee'] and ['Apple', 'iPhone'], the result will be a big mistake. 
+# Please note that numbers are replaced by # in the embedding model:
 
 for company in 'Google', 'IBM', 'Boeing', 'Microsoft', 'Samsung':
     products = A_is_to_B_as_C_is_to(

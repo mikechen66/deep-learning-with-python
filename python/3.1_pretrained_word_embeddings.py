@@ -7,7 +7,7 @@
 # $ cd ~/Documents/keras_examples
 
 # Run the program 
-# $ python lstm_stateful.py
+# $ 3.1_pretrained_word_embeddings.py
 
 # In this notebook we're going to play around with pre build word embeddings and do some fun 
 # calculations:

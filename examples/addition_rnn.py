@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-'''
+"""
 # An implementation of sequence to sequence learning for performing addition
 
 Input: "535+61"
@@ -25,7 +25,7 @@ Four digits reversed:
 
 Five digits reversed:
 + One layer LSTM (128 HN), 550k training examples = 99% train/test accuracy in 30 epochs
-'''  # noqa
+"""
 
 
 from __future__ import print_function

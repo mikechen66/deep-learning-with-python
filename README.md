@@ -16,8 +16,8 @@ TF 2.3.1.
 2.Correct Code Errors
 
 Much more annoying errors emerges from anywhere while readers run the obsolete Notebook programs. 
-Therefore, the python script would be a better complementary alternative to the Notebook codes. I am 
-dedicated to correct the code by rewriting some of notebook lines and 
+Therefore, I am dedicated to correct the code by importing new tools and rewriting some of notebook 
+code lines.
 
 3.Turn the Notebook to Python programs
 

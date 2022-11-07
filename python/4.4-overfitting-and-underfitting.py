@@ -61,10 +61,10 @@ for gpu in gpus:
 
 (train_data, train_labels), (test_data, test_labels) = imdb.load_data(num_words=10000)
 
-
 def vectorize_sequences(sequences, dimension=10000):
     # Create an all-zero matrix of shape (len(sequences), dimension)
     results = np.zeros((len(sequences), dimension))
+    # Iterate the sequences in the enumerate()function that includes parameters: index and literal
     for i, sequence in enumerate(sequences):
         results[i, sequence] = 1.  # set specific indices of results[i] to 1s
     return results
@@ -78,7 +78,7 @@ y_train = np.asarray(train_labels).astype('float32')
 y_test = np.asarray(test_labels).astype('float32')
 
 
-# Fighting overfitting
+# Fight overfitting
 
 original_model = models.Sequential()
 original_model.add(layers.Dense(16, activation='relu', input_shape=(10000,)))
@@ -178,7 +178,7 @@ plt.legend()
 plt.show()
 
 
-# Add weight regularization
+# Add weight regularization to mitigate overfitting. 
 l2_model = models.Sequential()
 l2_model.add(layers.Dense(16, kernel_regularizer=regularizers.l2(0.001),
                           activation='relu', input_shape=(10000,)))

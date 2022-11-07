@@ -13,8 +13,6 @@
 
 
 import keras
-keras.__version__
-
 import numpy as np
 import string
 from keras.preprocessing.text import Tokenizer

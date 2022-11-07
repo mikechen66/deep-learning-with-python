@@ -1,10 +1,50 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+"""
+# Overfitting and underfitting
+# 
+# This notebook contains the code samples found in Chapter 3, Section 6 of [Deep Learning with 
+# Python](https://www.manning.com/books/deep-learning-with-python?a_aid=keras&a_bid=76564dff). 
+# 
+# In all the examples we saw in the previous chapter -- movie review sentiment prediction, topic
+# classification, and house price regression -- we could notice that the performance of our model
+# on the held-out validation data would always peak after a few epochs and would then start degrading, 
+# i.e. our model would quickly start to _overfit_ to the training data. Overfitting happens in every 
+# single machine learning problem. Learning how to deal with overfitting is essential to mastering 
+# machine learning.
+# 
+# The fundamental issue in machine learning is the tension between optimization and generalization. 
+# Optimization refers to the process of adjusting a model to get the best performance possible on 
+# the training data (the learning in machine learning), while generalization refers to how well
+# the trained model would perform on data it has never seen before. The goal of the game is to get 
+# good generalization, but you do not control generalization; you can only adjust the model based 
+# on its training data.
+# 
+# At the beginning of training, optimization and generalization are correlated: the lower your loss on 
+# training data, the lower your loss on test data. While this is happening, your model is said to be 
+# under-fit: there is still progress to be made; the network hasn't yet modeled all relevant patterns 
+# in the training data. But after a certain number of iterations on the training data, generalization 
+# stops improving, validation metrics stall then start degrading: the model is then starting to overfit, 
+# i.e., is it starting to learn patterns that are specific to the training data but misleading or 
+# irrelevant when it comes to new data.
+# 
+# To prevent a model from learning misleading or irrelevant patterns found in the training data, the 
+# best solution is to get more training data. A model trained on more data will naturally generalize 
+# better. When that is no longer possible, the next best solution is to modulate the quantity
+# of information that your model is allowed to store, or to add constraints on what information it is 
+# allowed to store. If a network can only afford to memorize a small number of patterns, the optimization 
+# process will force it to focus on the most prominent patterns, which have a better chance of generalizing 
+# well.
+# 
+# The processing of fighting overfitting in this way is called regularization. Let's review some of the 
+# most common regularization techniques, and let's apply them in practice to improve our movie classification 
+# model from  the previous chapter.
+"""
+
 
 import keras
-keras.__version__
-
+# -keras.__version__
 from keras.datasets import imdb
 import numpy as np
 
@@ -188,16 +228,10 @@ regularizers.l1(0.001)
 regularizers.l1_l2(l1=0.001, l2=0.001)
 
 
-# Adding dropout
+# For jupyter notebook 
 
 # At training time: we drop out 50% of the units in the output
 
-"""
-Traceback (most recent call last):
-  File "4.4-overfitting-and-underfitting-simple.py", line 198, in <module>
-    layer_output *= np.randint(0, high=2, size=layer_output.shape)
-NameError: name 'layer_output' is not defined
-"""
 # -layer_output *= np.randint(0, high=2, size=layer_output.shape)
 
 # At test time, we would be scaling the output down by the dropout rate. Here we scale by 0.5 (because we were 

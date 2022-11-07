@@ -1,26 +1,23 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-
 # 5.1 - Introduction to convnets
 # 
 # This code contains the code sample found in Chapter 5, Section 1 of [Deep Learning with Python]
-# (https://www.manning.com/books/deep-learning-with-python?a_aid=keras&a_bid=76564dff). Note that 
-# the original text features far more content, in particular further explanations and figures: in 
-# this notebook, you will only find source code and related comments.
+# (https://www.manning.com/books/deep-learning-with-python?a_aid=keras&a_bid=76564dff).
 # 
 # First, let's take a practical look at a very simple convnet example. We will use our convnet to 
 # classify MNIST digits, a task that you've already been through in Chapter 2, using a densely 
 # connected network (our test accuracy then was 97.8%). Even though our convnet will be very basic, 
 # its accuracy will still blow out of the water that of the densely-connected model from Chapter 2.
 # 
-# The 6 lines of code below show you what a basic convnet looks like. It's a stack of `Conv2D` and 
-# `MaxPooling2D` layers. We'll see in a minute what they do concretely.
+# The 6 lines of code below show you what a basic convnet looks like. It's a stack of Conv2D and 
+# MaxPooling2D layers. We'll see in a minute what they do concretely.
 
-# Importantly, a convnet takes as input tensors of shape `(image_height, image_width, image_channels)` 
+# Importantly, a convnet takes as input tensors of shape (image_height, image_width, image_channels) 
 # (not including the batch dimension). In our case, we will configure our convnet to process inputs 
-# of size `(28, 28, 1)`, which is the format of MNIST images. We do this via passing the argument 
-# `input_shape=(28, 28, 1)` to our first layer.
+# of size (28, 28, 1), which is the format of MNIST images. We do this via passing the argument 
+# input_shape=(28, 28, 1) to our first layer.
 
 
 import keras
@@ -29,6 +26,9 @@ keras.__version__
 import tensorflow as tf 
 from keras import layers
 from keras import models
+from keras.datasets import mnist
+from keras.utils import to_categorical
+from numba import cuda
 
 
 # Set up the GPU growth to avoid a sudden stop of the runtime with the reminding 
@@ -46,19 +46,19 @@ model.add(layers.Conv2D(64, (3, 3), activation='relu'))
 model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Conv2D(64, (3, 3), activation='relu'))
 
-# Let's display the architecture of our convnet so far:
+# Display the architecture of our convnet
 
 model.summary()
 
 # You can see above that the output of every `Conv2D` and `MaxPooling2D` layer is a 3D tensor of shape 
-# `(height, width, channels)`. The width and height dimensions tend to shrink as we go deeper in the 
-# network. The number of channels is controlled by the first argument passed to the `Conv2D` layers 
+# (height, width, channels). The width and height dimensions tend to shrink as we go deeper in the 
+# network. The number of channels is controlled by the first argument passed to the Conv2D layers 
 # (e.g. 32 or 64).
 # 
-# The next step would be to feed our last output tensor (of shape `(3, 3, 64)`) into a densely-connected 
-# classifier network like those you are familiar with: a stack of `Dense` layers. The classifiers 
+# The next step would be to feed our last output tensor (of shape (3, 3, 64)) into a densely-connected 
+# classifier network like those you are familiar with: a stack of Dense layers. The classifiers 
 # process vectors, which are 1D, whereas our current output is a 3D tensor. So first, we will have to 
-# flatten our 3D outputs to 1D, and then add a few `Dense` layers on top:
+# flatten our 3D outputs to 1D, and then add a few Dense layers on top:
 
 model.add(layers.Flatten())
 model.add(layers.Dense(64, activation='relu'))
@@ -70,11 +70,8 @@ model.add(layers.Dense(10, activation='softmax'))
 model.summary()
 
 
-# As you can see, our `(3, 3, 64)` outputs were flattened into vectors of shape `(576,)`, before going 
-# through two `Dense` layers.
-
-from keras.datasets import mnist
-from keras.utils import to_categorical
+# As you can see, our (3, 3, 64) outputs were flattened into vectors of shape (576,), before going through
+# two Dense layers.
 
 (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
 
@@ -100,7 +97,5 @@ test_acc
 
 
 # Release the GPU memory
-from numba import cuda
-
 cuda.select_device(0)
 cuda.close()

@@ -2,85 +2,106 @@
 # coding: utf-8
 
 
-# # Visualizing what convnets learn
+# Visualizing what convnets learn
 # 
 # This notebook contains the code sample found in Chapter 5, Section 4 of [Deep Learning with Python]
 # (https://www.manning.com/books/deep-learning-with-python?a_aid=keras&a_bid=76564dff). 
 # 
-# Visualizing intermediate convnet outputs ("intermediate activations"). This is useful to understand 
-# how successive convnet layers. 
+# Task One - Visualize intermediate activations
+# 
+# Visualiz intermediate convnet outputs(activations). It gives a view into how an input is decomposed 
+# unto the different filters learned by the network. These feature maps we want to visualize have 3 
+# dimensions: width, height, and depth (channels). Each channel encodes relatively independent features, 
+# so the proper way to visualize these feature maps is by independently plotting the contents of every 
+# channel, as a 2D image. This is useful to understand how successive convnet layers. 
+#
+# Task Two - Visualize convnet filters
+# 
+# This can be done with gradient ascent in input space: applying gradient descent to the value of the 
+# input image of a convnet so as to maximize the response of a specific filter, starting from a blank 
+# input image. The resulting input image would be one that the chosen filter is maximally responsive to.
+#
+# Task Three - Visualize heatmaps of class activation
+#
+# This general category of techniques is called Class Activation Map(CAM) visualization, and consists 
+# in producing heatmaps of "class activation" over input images. A "class activation" heatmap is a 2D 
+# grid of scores associated with an specific output class, computed for every location in any input 
+# image, indicating how important each location is with respect to the class considered. The specific 
+# implementation we will use is the one described in Grad-CAM: Why did you say that? Visual Explanations 
+# from Deep Networks via Gradient-based Localization. 
 
-import keras
-keras.__version__
 
 import keras
 from keras.models import load_model
 from keras.preprocessing import image
-import numpy as np
-import matplotlib.pyplot as plt
 from keras import models
 import matplotlib.pyplot as plt
 from keras.applications import VGG16
 from keras import backend as K
+from keras.applications.vgg16 import VGG16
+from keras.applications.vgg16 import preprocess_input, decode_predictions
 import tensorflow as tf 
 tf.compat.v1.disable_eager_execution()
 import numpy as np
-from keras.preprocessing import image
-from keras.applications.vgg16 import preprocess_input, decode_predictions
-import numpy as np
-from keras.applications.vgg16 import VGG16
 from numba import cuda
 import cv2
 
 
+# Set up the GPU to avoid the runtime error: Could not create cuDNN handle...
+gpus = tf.config.experimental.list_physical_devices('GPU')
+for gpu in gpus:
+    tf.config.experimental.set_memory_growth(gpu, True)
+
+
+# Task One - Visualize intermediate activations
+
 model = load_model('cats_and_dogs_small_2.h5')
 model.summary()  # As a reminder.
 
-# This will be the input image we will use -- a picture of a cat, not part of images that the network 
-# was trained on:
+# This will be the input image we will use -- a picture of a cat, not part of images the network was 
+# trained on:
 img_path = '/home/mic/Documents/datasets/cats_and_dogs_small/test/cats/cat.1700.jpg'
 
 # We preprocess the image into a 4D tensor
 img = image.load_img(img_path, target_size=(150, 150))
 img_tensor = image.img_to_array(img)
 img_tensor = np.expand_dims(img_tensor, axis=0)
-# Remember that the model was trained on inputs
-# that were preprocessed in the following way:
+# Remember that the model was trained on inputs that were preprocessed in the following way:
 img_tensor /= 255.
 
-# Its shape is (1, 150, 150, 3)
+# The shape is (1, 150, 150, 3)
 print(img_tensor.shape)
 
-# Let's display our picture:
+# Display the picture:
 plt.imshow(img_tensor[0])
 plt.show()
 
-# Extracts the outputs of the top 8 layers:
+# Extract the outputs of the top 8 layers:
 layer_outputs = [layer.output for layer in model.layers[:8]]
-# Creates a model that will return these outputs, given the model input:
+# Create a model that will return these outputs, given the model input. 
 activation_model = models.Model(inputs=model.input, outputs=layer_outputs)
 
 # This will return a list of 5 Numpy arrays: one array per layer activation
 activations = activation_model.predict(img_tensor)
 
-# This is the activation of the first convolution layer for our cat image input:
+# This is the activation of the first convolution layer for the cat image input. 
 first_layer_activation = activations[0]
 print(first_layer_activation.shape)
 
 
-# It's a 148x148 feature map with 32 channels. Let's try visualizing the 3rd channel:
+# It's a 148 x 148 feature map with 32 channels. Let's try to visualize the 3rd channel. 
 plt.matshow(first_layer_activation[0, :, :, 3], cmap='viridis')
 plt.show()
 
 
-# These are the names of the layers, so can have them as part of our plot
+# These are the names of the layers, so we can have them as part of the plot.
 layer_names = []
 for layer in model.layers[:8]:
     layer_names.append(layer.name)
 
 images_per_row = 16
 
-# Now let's display our feature maps
+# Display the feature maps
 for layer_name, layer_activation in zip(layer_names, activations):
     # This is the number of features in the feature map
     n_features = layer_activation.shape[-1]
@@ -118,6 +139,8 @@ for layer_name, layer_activation in zip(layer_names, activations):
 plt.show()
 
 
+# Task Two - Visualize convnet filters
+
 model = VGG16(weights='imagenet',
               include_top=False)
 
@@ -127,9 +150,9 @@ filter_index = 0
 layer_output = model.get_layer(layer_name).output
 loss = K.mean(layer_output[:, :, :, filter_index])
 
-# Move the line of code from the In[12] to the current to avoid the shape error.
-# Add the above tensorflow and tf.compat.v1 to decrease the RuntimeError. 
-grads = K.gradients(loss, model.input)[0]
+# Move the line of code from the In[12] to the current to avoid the shape error. Add the above tensorflow 
+# and tf.compat.v1 to decrease the RuntimeError. 
+# -grads = K.gradients(loss, model.input)[0]
 
 # We add 1e-5 before dividing so as to avoid accidentally dividing by 0.
 grads /= (K.sqrt(K.mean(K.square(grads))) + 1e-5)
@@ -156,6 +179,7 @@ for i in range(40):
     # Here we adjust the input image in the direction that maximizes the loss
     input_img_data += grads_value * step
 
+
 def deprocess_image(x):
     # normalize tensor: center on 0., ensure std is 0.1
     x -= x.mean()
@@ -170,6 +194,7 @@ def deprocess_image(x):
     x *= 255
     x = np.clip(x, 0, 255).astype('uint8')
     return x
+
 
 def generate_pattern(layer_name, filter_index, size=150):
     # Build a loss function that maximizes the activation
@@ -206,7 +231,7 @@ for layer_name in ['block1_conv1', 'block2_conv1', 'block3_conv1', 'block4_conv1
     size = 64
     margin = 5
 
-    # This a empty (black) image where we will store our results.
+    # This is a empty (black) image where we will store our results.
     results = np.zeros((8 * size + 7 * margin, 8 * size + 7 * margin, 3))
 
     for i in range(8):  # iterate over the rows of our results grid
@@ -225,6 +250,9 @@ for layer_name in ['block1_conv1', 'block2_conv1', 'block3_conv1', 'block4_conv1
     plt.figure(figsize=(20, 20))
     plt.imshow(results)
     plt.show()
+
+
+# Task Three - Visualize heatmaps of class activation
 
 K.clear_session()
 
@@ -307,6 +335,7 @@ superimposed_img = heatmap * 0.4 + img
 
 # Save the image to disk
 cv2.imwrite('/home/mic/Documents/datasets/elephant_cam.jpg', superimposed_img)
+
 
 # Release the GPU memory
 cuda.select_device(0)

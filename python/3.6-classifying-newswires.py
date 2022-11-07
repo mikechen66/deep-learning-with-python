@@ -118,6 +118,7 @@ model.compile(optimizer='rmsprop',
               loss='categorical_crossentropy',
               metrics=['accuracy'])
 
+
 # Validating the approach
 
 # Set apart 1,000 samples in our training data to use as a validation set:
@@ -160,6 +161,7 @@ plt.ylabel('Loss')
 plt.legend()
 plt.show()
 
+
 # The above network starts overfitting after 8 epochs. So we train a new network from scratch 
 # for 8 epochs, and then evaluate it on the test set:
 
@@ -184,8 +186,6 @@ results = model.evaluate(x_test, one_hot_test_labels)
 # Our approach reaches an accuracy of ~78%. With a balanced binary classification problem, the 
 # accuracy reached by a purely random classifier would be 50%, but in our case it is closer to 
 # 19%, so our results seem pretty good, at least when compared to a random baseline:
-
-# Only for Jupyter Notebook
 
 # -import copy
 # -test_labels_copy = copy.copy(test_labels)
@@ -214,6 +214,7 @@ results = model.evaluate(x_test, one_hot_test_labels)
 # -y_train = np.array(train_labels)
 # -y_test = np.array(test_labels)
 
+
 # With integer labels, we should use sparse_categorical_crossentropy:
 model.compile(optimizer='rmsprop', 
               loss='sparse_categorical_crossentropy', 
@@ -236,6 +237,7 @@ model.fit(partial_x_train,
           epochs=20,
           batch_size=128,
           validation_data=(x_val, y_val))
+
 
 # Release the GPU memory
 cuda.select_device(0)

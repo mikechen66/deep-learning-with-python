@@ -6,14 +6,14 @@ Keras library to build intuitive explanations and practical examples. However, s
 code of lines are obsolete and tools are deprecated after the release of new dev environments such 
 as Keras 2.4, TensorFlow 2.3, imageio, etc. 
 
-1. Adapt to the New Dev Environment
+1.Adapt to the New Dev Environment
 
 Although Kears has been gradullay integrated into the TensorFlow environment, some classical programs 
 (especially the teaching programs) keep still no changed. It raises the challenges to the beginners
 who want the easy-to-read solutions. All of the programs are tested to adapt to both Keas 2.4.3 and 
 TF 2.3.1. 
 
-2. Correct Code Errors
+2.Correct Code Errors
 
 Much more annoying errors emerges from anywhere while readers run the obsolete Notebook programs. 
 Therefore, the python script would be a better complementary alternative to the Notebook codes. I am 

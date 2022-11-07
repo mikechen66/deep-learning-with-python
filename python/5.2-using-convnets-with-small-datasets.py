@@ -27,14 +27,13 @@
 
 
 import keras
-keras.__version__
-
 import tensorflow as tf 
 import os, shutil
 from keras import layers
 from keras import models
 from keras import optimizers
 from keras.preprocessing.image import ImageDataGenerator
+from keras.preprocessing import image
 import matplotlib.pyplot as plt
 from numba import cuda
 
@@ -44,6 +43,7 @@ from numba import cuda
 gpus = tf.config.experimental.list_physical_devices('GPU')
 for gpu in gpus:
     tf.config.experimental.set_memory_growth(gpu, True)
+
 
 # The path to the directory where the original dataset was uncompressed
 original_dataset_dir = '/home/mic/datasets/kaggle_original_data'
@@ -126,17 +126,24 @@ for fname in fnames:
     dst = os.path.join(test_dogs_dir, fname)
     shutil.copyfile(src, dst)
 
-# As a sanity check —— count how many pictures we have in each training split (train/validation/test):
+
+# Training split (train/validation/test) For jupyter notebook only
 
 print('total training cat images:', len(os.listdir(train_cats_dir)))
+# total training cat images: 1000
 print('total training dog images:', len(os.listdir(train_dogs_dir)))
+# total training dog images: 1000
 print('total validation cat images:', len(os.listdir(validation_cats_dir)))
+# total validation cat images: 500
 print('total validation dog images:', len(os.listdir(validation_dogs_dir)))
+# total validation dog images: 500
 print('total test cat images:', len(os.listdir(test_cats_dir)))
+# total test cat images: 500
 print('total test dog images:', len(os.listdir(test_dogs_dir)))
+# total test dog images: 500
 
 
-# Building our network
+# Building the convolutional network
 
 # Note that the depth of the feature maps is progressively increasing in the network (from 32 to 128), 
 # while the size of the feature maps is decreasing (from 148x148 to 7x7). This is a pattern that you 
@@ -156,10 +163,11 @@ model.add(layers.Flatten())
 model.add(layers.Dense(512, activation='relu'))
 model.add(layers.Dense(1, activation='sigmoid'))
 
-# Let's take a look at how the dimensions of the feature maps change with every successive layer:
+
+# Take a look at how the dimensions of the feature maps change with every successive layer:
 model.summary()
 
-# Since we ended our network with a single sigmoid unit, we will use binary crossentropy as our loss. 
+# Use binary crossentropy as our loss. 
 model.compile(loss='binary_crossentropy',
               optimizer=optimizers.RMSprop(lr=1e-4),
               metrics=['acc'])
@@ -174,7 +182,7 @@ test_datagen = ImageDataGenerator(rescale=1./255)
 train_generator = train_datagen.flow_from_directory(
         # This is the target directory
         train_dir,
-        # All images will be resized to 150x150
+        # All images will be resized to 150 x 150
         target_size=(150, 150),
         batch_size=20,
         # Since we use binary_crossentropy loss, we need binary labels
@@ -245,11 +253,10 @@ datagen = ImageDataGenerator(
       fill_mode='nearest')
 
 # This is module with image preprocessing utilities
-from keras.preprocessing import image
 
 fnames = [os.path.join(train_cats_dir, fname) for fname in os.listdir(train_cats_dir)]
 
-# We pick one image to "augment"
+# We pick one image to augment
 img_path = fnames[3]
 
 # Read the image and resize it
@@ -261,8 +268,8 @@ x = image.img_to_array(img)
 # Reshape it to (1, 150, 150, 3)
 x = x.reshape((1,) + x.shape)
 
-# The .flow() command below generates batches of randomly transformed images.
-# It will loop indefinitely, so we need to `break` the loop at some point!
+# The .flow() command below generates batches of randomly transformed images. It will loop 
+# indefinitely, so we need to break the loop at some point!
 i = 0
 for batch in datagen.flow(x, batch_size=1):
     plt.figure(i)
@@ -272,6 +279,7 @@ for batch in datagen.flow(x, batch_size=1):
         break
 
 plt.show()
+
 
 # Perform the model 
 model = models.Sequential()
@@ -289,12 +297,13 @@ model.add(layers.Dropout(0.5))
 model.add(layers.Dense(512, activation='relu'))
 model.add(layers.Dense(1, activation='sigmoid'))
 
+
+# Compile the model 
 model.compile(loss='binary_crossentropy',
               optimizer=optimizers.RMSprop(lr=1e-4),
               metrics=['acc'])
 
-# Train our network using data augmentation and dropout:
-
+# Train the network using data augmentation and dropout:
 train_datagen = ImageDataGenerator(
     rescale=1./255,
     rotation_range=40,
@@ -304,13 +313,15 @@ train_datagen = ImageDataGenerator(
     zoom_range=0.2,
     horizontal_flip=True,)
 
-# Note that the validation data should not be augmented!
+# Note the validation data should not be augmented!
 test_datagen = ImageDataGenerator(rescale=1./255)
 
+
+# Train the model 
 train_generator = train_datagen.flow_from_directory(
         # This is the target directory
         train_dir,
-        # All images will be resized to 150x150
+        # All images will be resized to 150 x 150
         target_size=(150, 150),
         batch_size=32,
         # Since we use binary_crossentropy loss, we need binary labels
@@ -330,11 +341,11 @@ history = model.fit_generator(
       validation_steps=50)
 
 
-# Save our model for convnet visualization.
+# Save the model for convnet visualization.
 model.save('cats_and_dogs_small_2.h5')
 
 
-# Plot our results again:
+# Plot the results again:
 acc = history.history['acc']
 val_acc = history.history['val_acc']
 loss = history.history['loss']

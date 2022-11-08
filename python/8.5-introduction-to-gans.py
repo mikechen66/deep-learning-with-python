@@ -10,21 +10,19 @@
 # Draw random points in the latent space (random noise).
 # Generate images with `generator` using this random noise.
 # Mix the generated images with real ones.
-# Train `discriminator` using these mixed images, with ceither real or fake images. 
+# Train discriminator using these mixed images, with ceither real or fake images. 
 # Draw new random points in the latent space.
-# Train `gan` using these random vectors, with targets that all say "these are real images". 
+# Train gan using these random vectors, with targets that all say "these are real images". 
 
 
-import keras
-keras.__version__
-import tensorflow as tf 
 import keras
 from keras import layers
 import numpy as np
-import os
 from keras.preprocessing import image
+import tensorflow as tf 
 import matplotlib.pyplot as plt
 from numba import cuda
+import os
 
 
 # Set up the GPU growth to avoid a sudden stop of the runtime with the reminding 
@@ -115,7 +113,7 @@ x_train = x_train.reshape(
 
 iterations = 10000
 batch_size = 20
-save_dir = '/home/mic/Documents/deep-learning-with-python-notebooks/data/gan_images/'
+save_dir = '/home/mic/Documents/deep-learning-with-python/data/gan_images/'
 
 # Start training loop
 start = 0

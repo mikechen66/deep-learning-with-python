@@ -14,9 +14,7 @@
 
 
 import keras
-keras.__version__
 from keras.preprocessing.image import load_img, img_to_array
-import numpy as np
 from keras.applications import vgg19
 from keras import backend as K
 import tensorflow as tf
@@ -24,6 +22,7 @@ tf.compat.v1.disable_eager_execution()
 from scipy.optimize import fmin_l_bfgs_b
 # -from scipy.misc import imsave
 from imageio import imsave
+import numpy as np
 import time
 from matplotlib import pyplot as plt
 from numba import cuda
@@ -114,6 +113,7 @@ style_layers = ['block1_conv1',
                 'block3_conv1',
                 'block4_conv1',
                 'block5_conv1']
+                
 # Weights in the weighted average of the loss components
 total_variation_weight = 1e-4
 style_weight = 1.

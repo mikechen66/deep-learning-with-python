@@ -18,22 +18,23 @@ import string
 from keras.preprocessing.text import Tokenizer
 
 
-# This is our initial data; one entry per sample
+# 1.Word-level one-hot encoding (toy example)
+
+# This is the initial data; one entry per sample
 samples = ['The cat sat on the mat.', 'The dog ate my homework.']
 
 # Build an index of all tokens in the data.
 token_index = {}
 for sample in samples:
-    # We simply tokenize the samples via the `split` method.
-    # in real life, we would also strip punctuation and special characters
-    # from the samples.
+    # We simply tokenize the samples via the split method. In real life, we would also strip
+    # punctuation and special characters from the samples.
     for word in sample.split():
-        if word not in token_index:
+        if word not in token_index: 
             # Assign a unique index to each unique word
             token_index[word] = len(token_index) + 1
             # Note that we don't attribute index 0 to anything.
 
-# Vectorize our samples. We will only consider the first `max_length` words in each sample.
+# Vectorize the samples. We will only consider the first max_length words in each sample.
 max_length = 10
 
 # This is where we store our results:
@@ -42,6 +43,9 @@ for i, sample in enumerate(samples):
     for j, word in list(enumerate(sample.split()))[:max_length]:
         index = token_index.get(word)
         results[i, j, index] = 1.
+
+
+# 2.Character-level one-hot encoding (toy example)
 
 # Character level one-hot encoding (toy example)
 samples = ['The cat sat on the mat.', 'The dog ate my homework.']

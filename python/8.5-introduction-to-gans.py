@@ -39,16 +39,16 @@ width = 32
 channels = 3
 generator_input = keras.Input(shape=(latent_dim,))
 
-# Transform the input into a 16x16 128-channels feature map
+# Transform the input into a 16 x 16 128-channels feature map
 x = layers.Dense(128 * 16 * 16)(generator_input)
 x = layers.LeakyReLU()(x)
 x = layers.Reshape((16, 16, 128))(x)
 
-# Then, add a convolution layer
+# Add a convolution layer
 x = layers.Conv2D(256, 5, padding='same')(x)
 x = layers.LeakyReLU()(x)
 
-# Upsample to 32x32
+# Upsample to 32 x 32
 x = layers.Conv2DTranspose(256, 4, strides=2, padding='same')(x)
 x = layers.LeakyReLU()(x)
 
@@ -58,7 +58,7 @@ x = layers.LeakyReLU()(x)
 x = layers.Conv2D(256, 5, padding='same')(x)
 x = layers.LeakyReLU()(x)
 
-# Produce a 32x32 1-channel feature map
+# Produce a 32 x 32 1-channel feature map
 x = layers.Conv2D(channels, 7, activation='tanh', padding='same')(x)
 generator = keras.models.Model(generator_input, x)
 generator.summary()
@@ -165,7 +165,7 @@ for step in range(iterations):
         img = image.array_to_img(generated_images[0] * 255., scale=False)
         img.save(os.path.join(save_dir, 'generated_frog' + str(step) + '.png'))
 
-        # Save one real image, for comparison
+        # Save one real image for comparison
         img = image.array_to_img(real_images[0] * 255., scale=False)
         img.save(os.path.join(save_dir, 'real_frog' + str(step) + '.png'))
 

@@ -8,6 +8,7 @@
 # Recurrent dropout*, a specific, built-in way to use dropout to fight overfitting in recurrent layers.
 # Stacking recurrent layers*, to increase the representational power of the network (at the cost of higher 
 # ccomputational loads).
+
 # Bidirectional recurrent layers*, which presents the same information to a recurrent network in different 
 # ways, increasing accuracy and mitigating forgetting issues.
 
@@ -16,20 +17,27 @@
 
 
 import keras
-keras.__version__
 import os
 import numpy as np
 from matplotlib import pyplot as plt
 from keras.models import Sequential
 from keras import layers
 from keras.optimizers import RMSprop
-import matplotlib.pyplot as plt
-from keras.models import Sequential
+# -import matplotlib.pyplot as plt
 from keras import layers
 from keras.datasets import imdb
 from keras.preprocessing import sequence
 from keras import backend as K
+import tensorflow as tf
+from numba import cuda
 
+
+# Set up the GPU to avoid the runtime error: Could not create cuDNN handle...
+gpus = tf.config.experimental.list_physical_devices('GPU')
+for gpu in gpus:
+    tf.config.experimental.set_memory_growth(gpu, True)
+
+# 1. A temperature forecasting 
 
 data_dir = '/home/mic/datasets'
 fname = os.path.join(data_dir, 'jena_climate_2009_2016.csv')
@@ -57,10 +65,14 @@ plt.show()
 plt.plot(range(1440), temp[:1440])
 plt.show()
 
+
+# 2.Preparing the data
+
 mean = float_data[:200000].mean(axis=0)
 float_data -= mean
 std = float_data[:200000].std(axis=0)
 float_data /= std
+
 
 def generator(data, lookback, delay, min_index, max_index,
               shuffle=False, batch_size=128, step=6):
@@ -87,10 +99,12 @@ def generator(data, lookback, delay, min_index, max_index,
             targets[j] = data[rows[j] + delay][1]
         yield samples, targets
 
+
 lookback = 1440
 step = 6
 delay = 144
 batch_size = 128
+
 
 train_gen = generator(float_data,
                       lookback=lookback,
@@ -115,11 +129,19 @@ test_gen = generator(float_data,
                      step=step,
                      batch_size=batch_size)
 
+
 # This is how many steps to draw from `val_gen` in order to see the whole validation set:
 val_steps = (300000 - 200001 - lookback) // batch_size
 
 # This is how many steps to draw from `test_gen` in order to see the whole test set:
 test_steps = (len(float_data) - 300001 - lookback) // batch_size
+
+
+# Delete the line of code due to name 'preds' is not defined. 
+# -np.mean(np.abs(preds - targets))
+
+
+# Evalute the naive method
 
 def evaluate_naive_method():
     batch_maes = []
@@ -131,6 +153,10 @@ def evaluate_naive_method():
     print(np.mean(batch_maes))
     
 evaluate_naive_method()
+# 0.2897359729905486
+
+
+# 3.A basic machine learning approach
 
 model = Sequential()
 model.add(layers.Flatten(input_shape=(lookback // step, float_data.shape[-1])))
@@ -159,6 +185,8 @@ plt.legend()
 plt.show()
 
 
+# 4.A first recurrent baseline 
+
 model = Sequential()
 model.add(layers.GRU(32, input_shape=(None, float_data.shape[-1])))
 model.add(layers.Dense(1))
@@ -184,6 +212,8 @@ plt.legend()
 
 plt.show()
 
+
+# 5.Using recurrent dropout to fight overfitting
 
 model = Sequential()
 model.add(layers.GRU(32,
@@ -213,6 +243,8 @@ plt.title('Training and validation loss')
 plt.legend()
 plt.show()
 
+
+# 6.Stacking recurrent layers 
 
 model = Sequential()
 model.add(layers.GRU(32,
@@ -246,6 +278,8 @@ plt.legend()
 
 plt.show()
 
+
+# 7. Use bidirectional RNNs:
 
 def reverse_order_generator(data, lookback, delay, min_index, max_index,
                             shuffle=False, batch_size=128, step=6):
@@ -315,6 +349,8 @@ plt.legend()
 plt.show()
 
 
+# 8.Try same trick on the LSTM IMDB example from the previous section.
+
 # Number of words to consider as features
 max_features = 10000
 # Cut texts after this number of words (among top max_features most common words)
@@ -344,6 +380,9 @@ history = model.fit(x_train, y_train,
                     batch_size=128,
                     validation_split=0.2)
 
+
+# 9.try it on the IMDB sentiment analysis task
+
 K.clear_session()
 
 model = Sequential()
@@ -366,3 +405,8 @@ history = model.fit_generator(train_gen,
                               epochs=2,
                               validation_data=val_gen,
                               validation_steps=val_steps)
+
+
+# Release the GPU memory
+cuda.select_device(0)
+cuda.close()

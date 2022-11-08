@@ -22,7 +22,6 @@
 
 
 import keras
-keras.__version__
 import tensorflow as tf 
 import keras
 import numpy as np
@@ -89,7 +88,8 @@ model.add(layers.LSTM(128, input_shape=(maxlen, len(chars))))
 model.add(layers.Dense(len(chars), activation='softmax'))
 
 
-# Since the targets are one-hot encoded, we will use `categorical_crossentropy` as the loss to train the model:
+# Since the targets are one-hot encoded, we will use categorical_crossentropy
+# as the loss to train the model:
 optimizer = keras.optimizers.RMSprop(lr=0.01)
 model.compile(loss='categorical_crossentropy', optimizer=optimizer)
 

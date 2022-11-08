@@ -8,16 +8,14 @@
 
 
 import keras
-keras.__version__
-import tensorflow as tf 
 from keras.applications import inception_v3
 from keras import backend as K
+from keras.preprocessing import image
 import tensorflow as tf
 tf.compat.v1.disable_eager_execution()
 import scipy
 import imageio
 from imageio import imsave
-from keras.preprocessing import image
 import numpy as np
 from matplotlib import pyplot as plt
 from numba import cuda

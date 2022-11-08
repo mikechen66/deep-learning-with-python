@@ -11,12 +11,9 @@
 # deep learning with Bayesian inference.
 
 import keras
-keras.__version__
 from keras import backend as K
 K.clear_session()
-import keras
 from keras import layers
-from keras import backend as K
 from keras.models import Model
 import matplotlib.pyplot as plt
 from scipy.stats import norm
